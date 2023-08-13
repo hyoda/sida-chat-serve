@@ -1,2 +1,5 @@
-.venv
-
+bin
+etc
+lib
+pyvenv.cfg
+share
