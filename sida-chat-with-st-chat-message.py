@@ -1,7 +1,17 @@
+import os
 import openai
 import streamlit as st
 import numpy as np
 from streamlit_chat import message
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.vectorstores import Chroma
+
+DB_DIR = "./db/"
+
+db = Chroma(
+    embedding_function=HuggingFaceEmbeddings(model_name="jhgan/ko-sbert-sts"),
+    persist_directory=DB_DIR,
+)
 
 openai.api_key = st.secrets['pass']
 
@@ -22,15 +32,24 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    doc = db.similarity_search(prompt, k=9)  # k=15) # k=19)
+    ref_content = "\n".join([x.page_content for x in doc])
+    ref_prompt = f"""
+    <reference>{ref_content}</reference>\n
+    reference를 참고해서 답변합니다. 최종 정답만 말합니다.
+    ---
+    {prompt}"""
+
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
+
         full_response = ""
         for response in openai.ChatCompletion.create(
             model=st.session_state["openai_model"],
             messages=[
                 {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
+                for m in st.session_state.messages[:-1]
+            ] + [{"role": "user", "content": ref_prompt}],
             stream=True,
         ):
             full_response += response.choices[0].delta.get("content", "")
