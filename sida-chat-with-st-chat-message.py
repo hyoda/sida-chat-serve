@@ -1,4 +1,5 @@
 import os
+import random
 import openai
 import streamlit as st
 import numpy as np
@@ -32,8 +33,10 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    doc = db.similarity_search(prompt, k=9)  # k=15) # k=19)
-    ref_content = "\n".join([x.page_content for x in doc])
+    doc = db.similarity_search(prompt, k=25)
+    doc = [x.page_content for x in doc if len(x.page_content) > 80]
+    ref_content = "\n\n".join(random.choices(doc, k=min(9, len(doc))))
+    
     ref_prompt = f"""
     <reference>{ref_content}</reference>\n
     reference를 참고해서 답변합니다. 최종 정답만 말합니다.
