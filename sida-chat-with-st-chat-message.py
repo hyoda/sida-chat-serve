@@ -10,6 +10,9 @@ __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
+# Streamlit에서 환경 변수 설정을 통해 tokenizers의 병렬 처리를 비활성화합니다.
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+
 DB_DIR = "./db/"
 
 db = Chroma(
