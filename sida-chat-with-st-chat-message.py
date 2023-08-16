@@ -6,6 +6,9 @@ import numpy as np
 from streamlit_chat import message
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 DB_DIR = "./db/"
 
