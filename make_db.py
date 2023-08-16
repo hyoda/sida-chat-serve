@@ -7,7 +7,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 DATA_DIR = "./data/"
 DB_DIR = "./db/"
 
-chunk_size = 200 #500  # 1000
+chunk_size = 300 #500  # 1000
 chunk_overlap = 100 #100  # 20
 
 def split_docs(documents, chunk_size=chunk_size, chunk_overlap=chunk_overlap):
