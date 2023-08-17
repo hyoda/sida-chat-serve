@@ -18,8 +18,13 @@ openai.api_key = st.secrets['pass']
 
 st.title("시다 챗: 남해워케이션에서 만든 인공지능 챗봇")
 
-if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "gpt-3.5-turbo"
+st.session_state["openai_model"] = st.radio(
+    "모델 선택",
+    ("gpt-3.5-turbo", "gpt-4"))
+
+search_k, pick_k = 25, 9
+if st.session_state["openai_model"] == 'gpt-4':
+    search_k, pick_k = 50, 15
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -33,15 +38,16 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    doc = db.similarity_search(prompt, k=25)
+    doc = db.similarity_search(prompt, k=search_k)
     doc = [x.page_content for x in doc if len(x.page_content) > 80]
-    ref_content = "\n\n".join(random.choices(doc, k=min(9, len(doc))))
+    ref_content = "\n\n".join(random.choices(doc, k=min(pick_k, len(doc))))
     
     ref_prompt = f"""
     <reference>{ref_content}</reference>\n
     reference를 참고해서 답변합니다. 최종 정답만 말합니다.
     ---
     {prompt}"""
+    print(ref_prompt) # prompt 테스트 출력
 
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
